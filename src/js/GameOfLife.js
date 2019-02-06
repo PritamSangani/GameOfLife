@@ -1,16 +1,11 @@
 function GameOfLife(canvas, cols, rows) {
-    let width = canvas.width;   // cols
-    let height = canvas.height; // rows
-    let cellSize = width / cols;
+    const WIDTH = canvas.width;  
+    const HEIGHT = canvas.height;
+    const CELL_SIZE = WIDTH / cols;
 
-    let board = new Board(canvas, cellSize);
-    //let grid = init2DArray();
-    // grid = randomFillGrid(grid);
-    let grid = [[0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 1, 1, 1, 0],
-                [0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0]];
+    let board = new Board(canvas, CELL_SIZE);
+    let grid = init2DArray();
+    grid = randomFillGrid(grid);
 
     function init2DArray() {
         let arr = new Array(cols);
@@ -33,32 +28,29 @@ function GameOfLife(canvas, cols, rows) {
     }
 
     function play() {
-        interval = setInterval(update, 500);
+        updateBoard();
+        interval = setInterval(update, 15);
     }
 
     function update() {
-        updateGen();
+        nextGen();
         updateBoard();
     }
 
-    function updateGen() {
+    function nextGen() {
         let nextGen = init2DArray();
         
         for (let i = 0; i < cols; i++) {
             for (let j = 0; j < rows; j++) {
                 let state = grid[i][j];
-                let neighbours = countLiveNeighbours(i, j);
-                
-                if (state == 1) {
-                    if (neighbours < 2 || neighbours > 3) {
-                        nextGen[i][j] = 0;
-                    } else {
-                        nextGen[i][j] = state;
-                    }
-                } else {
-                    if (neighbours === 3) {
-                        nextGen[i][j] = 1;
-                    }
+                let neighbours = countLiveNeighbours(grid, i, j);                        
+
+                nextGen[i][j] = state;
+
+                if (state == 1 && (neighbours < 2 || neighbours > 3)) {
+                    nextGen[i][j] = 0;
+                } else if (state === 0 && neighbours === 3) {
+                    nextGen[i][j] = 1;
                 }
                 
             }
@@ -68,23 +60,19 @@ function GameOfLife(canvas, cols, rows) {
 
     }
 
-    function countLiveNeighbours(x, y) {
+    function countLiveNeighbours(grid, x, y) {
         let sum = 0;
-
+    
         for (let i = -1; i < 2; i++) {
             for (let j = -1; j < 2; j++) {
-                if ( !( x + i == -1
-                    || y + j == -1
-                    || x + i > rows - 1
-                    || y + j > cols - 1 ) ) {
-                // And if the spot contains a neighbor...
-                if ( grid[x + i][y + j]
-                      && !( i == 0 && j == 0 ) ) {
-                    sum++;  // Count neighbor
-                }
-              }
+                let col = (i + x + cols) % cols;
+                let row = (j + y + rows) % rows;
+                
+                sum += grid[col][row];
             }
         }
+        // don't want to count the cell you are checking
+        sum -= grid[x][y];
 
         return sum;
     }
@@ -95,12 +83,12 @@ function GameOfLife(canvas, cols, rows) {
     }
 
     function drawBoard() {
-        board.drawBoard(0,0,cols * cellSize, rows * cellSize, 'black');
+        board.drawBoard(0, 0, WIDTH, HEIGHT, 'black');
         
         for (let i = 0; i < cols; i++) {
             for (let j = 0; j < rows; j++) {
-                let x = j * cellSize;
-                let y = i * cellSize;        
+                let x = j * CELL_SIZE;
+                let y = i * CELL_SIZE;        
             
                 if (grid[i][j] == 1) {
                     board.fillCell(x, y, 'white', 'black');
