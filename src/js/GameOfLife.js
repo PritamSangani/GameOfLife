@@ -1,4 +1,4 @@
-function GameOfLife(canvas, cols, rows, seed = []) {
+function GameOfLife(canvas, cols, rows, frameSpeed, seed=[]) {
     const WIDTH = canvas.width;  
     const HEIGHT = canvas.height;
     const CELL_SIZE = WIDTH / cols;
@@ -30,7 +30,7 @@ function GameOfLife(canvas, cols, rows, seed = []) {
 
     function play() {
         updateBoard();
-        interval = setInterval(update, 15);
+        interval = setInterval(update, frameSpeed);
     }
 
     function update() {
