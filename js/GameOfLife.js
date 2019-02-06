@@ -1,12 +1,13 @@
-function GameOfLife(canvas, cols, rows) {
+function GameOfLife(canvas, cols, rows, seed = []) {
     const WIDTH = canvas.width;  
     const HEIGHT = canvas.height;
     const CELL_SIZE = WIDTH / cols;
 
     let board = new Board(canvas, CELL_SIZE);
     let grid = init2DArray();
-    grid = randomFillGrid(grid);
-
+    
+    grid = (seed.length === 0) ? randomFillGrid(grid) : seed;
+    
     function init2DArray() {
         let arr = new Array(cols);
 
